@@ -1,23 +1,20 @@
 # VSQL
 
 // site
-https://ymvas.com/vsql
+https://ymvas.com/ymsql
 
 
 VSQL is a query helper and abstraction layer for php.
 
 ### COMPOSER INSTALATION
 ```sh
-composer require vasyl/vsql
+composer require ymvas/ymsql
 ```
 
 ### Basic Script
 
 ````php
-use VSQL\VSQL\VSQL;
-
-// set this to true if you are on debug mode
-$_ENV['VSQL_INSPECT'] = true;
+use YMSQL\YMSQL;
 
 // declare the database variables in ENV
 $_ENV[  'DB_HOST'  ] = 'host';

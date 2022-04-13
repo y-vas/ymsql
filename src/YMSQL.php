@@ -1,16 +1,9 @@
 <?php
 
-namespace VSQL\VSQL;
+namespace YMSQL;
 include(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'DB.php');
 
-//                                           ██╗     ██╗ ███████╗  ██████╗  ██╗
-//                                           ██║    ██║ ██╔════╝ ██╔═══██╗ ██║
-//                                           ██║   ██║ ███████╗ ██║   ██║ ██║
-//                                          ╚██╗  ██║ ╚════██║ ██║▄▄ ██║ ██║
-//                                           ╚████╔╝  ███████║╚ ██████║ ███████╗
-//                                             ╚═══╝   ╚══════╝ ╚══▀▀═╝ ╚══════╝
-
-class VSQL extends \DB {
+class YMSQL extends \DB {
 
   public $map = null;
 
@@ -163,7 +156,7 @@ class VSQL extends \DB {
 
           if (strpos($pr, ':') !== false ||
               strpos($pr, '*') !== false
-            ) {
+          ){
             $nst = str_repeat(' ', strlen( $exp[1] ) + 10) . $exp[0];
             $str = substr_replace(  $str, $nst, $pb , $e );
           } else if (strpos($pr, ':') === false) {
@@ -226,7 +219,7 @@ class VSQL extends \DB {
       // d = date
       case 'd':
           settype($var, 'string');
-          $res = empty($var) ? "'1970-01-01'": "'{$var}'";
+          $res = empty( $var ) ? "'1970-01-01'":"'{$var}'";
           if (!(\DateTime::createFromFormat('Y-m-d', $var) !== false)) {
               $res = null;
           }
@@ -240,6 +233,7 @@ class VSQL extends \DB {
           }
           break;
 
+      case 'e':
       case 'email':
           if (!filter_var($res, FILTER_VALIDATE_EMAIL)) {
             $res = null;
@@ -263,7 +257,6 @@ class VSQL extends \DB {
 
       // parse to positive integer
       case 'r':
-      case '+i':
           if ($var === null){
             $res = null;
           } elseif (!is_numeric($var)) {
@@ -302,6 +295,7 @@ class VSQL extends \DB {
       // implode the array
       case 'implode':
       case 'array':
+      case 'a':
           if (!is_array( $res )) {
             $res = [];
           }
@@ -318,6 +312,7 @@ class VSQL extends \DB {
 
       // transform the valie to json
       case 'json':
+      case 'j':
           $res = "'" . json_encode($res, JSON_UNESCAPED_UNICODE ) . "'";
           break;
 
@@ -326,6 +321,7 @@ class VSQL extends \DB {
           $res = "'" . trim(strval( $res )) . "'";
           break;
 
+      // this 2 look souspiciously bad needs to be checked
       case '"': // add for quoted values
           $res =  '"' . trim(strval( $res ));
           break;
@@ -344,17 +340,13 @@ class VSQL extends \DB {
           $res = (strlen($v) > 0) ? '"'. $v . '"': null;
           break;
 
-      case 'raw':
+      case 'w':
           json_decode( $var );
           $res = (json_last_error() == JSON_ERROR_NONE) ? "'". $var."'" : '{}';
           break;
 
-      case 'checkbox':
+      case 'x':
           $res = ($var == 'on') ? 1 : 0;
-          break;
-
-      case 'rstr':
-          $res = substr(md5(mt_rand()),0,7);
           break;
 
       default:
@@ -383,7 +375,7 @@ class VSQL extends \DB {
 
 //------------------------------------------------ <  get > ------------------------------------------------------------
   public function get( $list = false , $callback = null ) {
-      if ($list === 'output-query') {
+      if ( $list === 'output-query' ) {
         return $this->vquery;
       }
 
@@ -392,33 +384,7 @@ class VSQL extends \DB {
       $count  = 0;
 
       if (mysqli_multi_query( $mysqli, $this->vquery )) {
-
-          // to remove for for making csv's
-          if ($list === 'output-csv') {
-              //----------------------------------------------------------------
-              $fp = fopen('php://output', 'wb');
-              do { if( $result = mysqli_store_result($mysqli) ){
-                  while( $proceso = mysqli_fetch_assoc( $result ) ){
-                    $crow = ( array ) $this->fetch( $result, $proceso ,$callback );
-
-                    if ( $count == 0 ){
-                      fputcsv( $fp , array_keys($crow) );
-                    }
-
-                    fputcsv( $fp , $crow );
-                    $count ++;
-                  }
-
-                  mysqli_free_result($result);
-              }
-
-              if (!mysqli_more_results($mysqli)) { break; }
-              } while (mysqli_next_result($mysqli) && mysqli_more_results());
-
-              fclose( $fp );
-              return $fp;
-
-          } elseif ($list === true) {
+          if ($list === true) {
 
               //----------------------------------------------------------------
               do { if($result = mysqli_store_result($mysqli) ) {

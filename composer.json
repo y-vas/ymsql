@@ -1,25 +1,23 @@
 {
-    "name": "vasyl/vsql",
+    "name": "ymvas/ymsql",
     "description": "SQL Helper",
     "type": "package",
-    "authors": [
-        {
-            "name": "Vasyl Yovdiy",
-            "email": "yovdiyvasyl@gmail.com"
-        }
-    ],
+    "authors": [{
+      "name": "Vasyl Yovdiy",
+      "email": "info@ymvas.com"
+    }],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "platform": {
-            "php": "7.4.0"
-        }
+      "platform": {
+        "php": "7.4.0"
+      }
     },
-    "require": { },
+    "require":{},
     "autoload": {
-        "psr-4": {
-            "VSQL\\VSQL\\": "src/"
-        }
+      "psr-4": {
+        "YMSQL\\": "src/"
+      }
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5"

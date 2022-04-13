@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
-use VSQL\VSQL\VSQL;
+use YMSQL\YMSQL;
 
 // // DISABLE INSPET TO prevent from swhowing the inspect mode
 $_ENV['VSQL_INSPECT'] = false;
@@ -10,7 +10,7 @@ $_ENV['DB_USERNAME'] = 'root';
 $_ENV['DB_PASSWORD'] = 'root';
 $_ENV['DB_DATABASE'] = 'dbtest';
 
-final class VSQL_TEST extends TestCase {
+final class YMSQL_TEST extends TestCase {
     public $vsql = null;
 
     public $select_test_query = "SELECT *
@@ -41,7 +41,7 @@ final class VSQL_TEST extends TestCase {
 
     protected function setUp(){
       try {
-        $this->vsql = new VSQL();
+        $this->vsql = new YMSQL();
       } catch (\Exception $e) {
         $this->fail('Could not connect mysqli with VSQL!');
       }

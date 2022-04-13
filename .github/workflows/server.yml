@@ -1,11 +1,9 @@
-name: VSQLTest
+name: YMSQLTest
 
 on:
   push:
     branches: [ master ]
     paths-ignore:
-    - 'httpdocs'
-    - 'news1.bitbase.es'
     - 'docker'
     - 'demo'
     - '.github'
@@ -19,6 +17,7 @@ jobs:
 
     - name: init mysql_ymsql
       run: sudo docker-compose up -d mysql_ymsql
+      
     - name: init apache_ymsql
       run: sudo docker-compose up -d apache_ymsql
 
