@@ -1,0 +1,26 @@
+name: VSQLTest
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+    - 'httpdocs'
+    - 'news1.bitbase.es'
+    - 'docker'
+    - 'demo'
+    - '.github'
+
+jobs:
+  Tests:
+    runs-on:
+      ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: init mysql_ymsql
+      run: sudo docker-compose up -d mysql_ymsql
+    - name: init apache_ymsql
+      run: sudo docker-compose up -d apache_ymsql
+
+    - name: run tests
+      run: sudo docker exec apache_ymsql /bin/bash -c 'cd .. && ./vendor/bin/phpunit app/Test/'

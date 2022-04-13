@@ -1,0 +1,36 @@
+version: "3.2"
+
+services:
+  apache_ymsql:
+    build:
+      context: './docker/apache/'
+    links:
+      - mysql_ymsql:mysqldb
+    depends_on:
+      - mysql_ymsql
+    ports:
+      - "0:80"
+    volumes:
+      - ./:/var/www/html/
+      - ./docker/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
+    container_name: apache_ymsql
+
+  mysql_ymsql:
+    image: mysql/mysql-server:8.0
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--default-authentication-plugin=mysql_native_password']
+    restart: always
+    ports:
+      - "0:3306"
+
+    # volumes:
+    #   - ./docker/mysql-dump:/docker-entrypoint-initdb.d
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dbtest
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+
+    container_name: mysql_ymsql
