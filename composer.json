@@ -1,11 +1,11 @@
 {
-    "name": "vasyl/vsql",
+    "name": "ymvas/ymsql",
     "description": "SQL Helper",
     "type": "package",
     "authors": [
         {
             "name": "Vasyl Yovdiy",
-            "email": "yovdiyvasyl@gmail.com"
+            "email": "info@ymvas.com"
         }
     ],
     "minimum-stability": "dev",
