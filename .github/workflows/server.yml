@@ -1,11 +1,9 @@
-name: VSQLTest
+name: YMSQLTest
 
 on:
   push:
     branches: [ master ]
     paths-ignore:
-    - 'httpdocs'
-    - 'news1.bitbase.es'
     - 'docker'
     - 'demo'
     - '.github'
