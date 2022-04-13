@@ -1,16 +1,9 @@
 <?php
 
-namespace VSQL\VSQL;
+namespace YMSQL;
 include(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'DB.php');
 
-//                                           ██╗     ██╗ ███████╗  ██████╗  ██╗
-//                                           ██║    ██║ ██╔════╝ ██╔═══██╗ ██║
-//                                           ██║   ██║ ███████╗ ██║   ██║ ██║
-//                                          ╚██╗  ██║ ╚════██║ ██║▄▄ ██║ ██║
-//                                           ╚████╔╝  ███████║╚ ██████║ ███████╗
-//                                             ╚═══╝   ╚══════╝ ╚══▀▀═╝ ╚══════╝
-
-class VSQL extends \DB {
+class YMSQL extends \DB {
 
   public $map = null;
 
@@ -226,7 +219,7 @@ class VSQL extends \DB {
       // d = date
       case 'd':
           settype($var, 'string');
-          $res = empty($var) ? "'1970-01-01'": "'{$var}'";
+          $res = empty( $var ) ? "'1970-01-01'":"'{$var}'";
           if (!(\DateTime::createFromFormat('Y-m-d', $var) !== false)) {
               $res = null;
           }
@@ -263,7 +256,6 @@ class VSQL extends \DB {
 
       // parse to positive integer
       case 'r':
-      case '+i':
           if ($var === null){
             $res = null;
           } elseif (!is_numeric($var)) {
@@ -349,12 +341,8 @@ class VSQL extends \DB {
           $res = (json_last_error() == JSON_ERROR_NONE) ? "'". $var."'" : '{}';
           break;
 
-      case 'checkbox':
+      case 'x':
           $res = ($var == 'on') ? 1 : 0;
-          break;
-
-      case 'rstr':
-          $res = substr(md5(mt_rand()),0,7);
           break;
 
       default:
