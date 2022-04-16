@@ -3,7 +3,7 @@
 namespace YMSQL;
 include(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'DB.php');
 
-class YMSQL extends \DB {
+class YMSQL extends \DBymvas {
 
   public $map = null;
 

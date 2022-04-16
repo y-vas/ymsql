@@ -1,6 +1,6 @@
 <?php
 
-class DB {
+class DBymvas {
   public $inspect;   // shows if you are in inspect mode
   public $vquery=''; // given query
   public $cquery; // compiled query
