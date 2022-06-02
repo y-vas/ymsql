@@ -2,7 +2,7 @@ name: YMSQLTest
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
     - 'docker'
     - 'demo'
@@ -17,7 +17,7 @@ jobs:
 
     - name: init mysql_ymsql
       run: sudo docker-compose up -d mysql_ymsql
-      
+
     - name: init apache_ymsql
       run: sudo docker-compose up -d apache_ymsql
 
