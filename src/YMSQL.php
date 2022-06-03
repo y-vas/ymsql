@@ -123,6 +123,7 @@ class YMSQL extends \DBymvas {
     $positions = [];
     $substitut = [[
       'query'  => '' ,
+      'scount'=> 0 ,
       'values' => [] ,
       'vcount' => 0  ,
     ]];
@@ -149,6 +150,7 @@ class YMSQL extends \DBymvas {
         $substitut[] = [
           'query' => '',
           'vcount'=> 0 ,
+          'scount'=> 0 ,
           'values'=> [],
         ];
 
@@ -179,6 +181,10 @@ class YMSQL extends \DBymvas {
           continue;
         }
 
+        if ( $meta['vcount'] != $meta['scount'] ){
+          continue;
+        }
+
         if ( $had_else && $found ){
           $found = false;
           continue;
@@ -197,6 +203,8 @@ class YMSQL extends \DBymvas {
       } elseif ( $c == ':' ){
         $arr = $this->keyInterpreter($i,$chars);
 
+        $substitut[$counter]['scount'] += 1;
+
         if ($arr != null) {
           $key = $arr['key'];
 
@@ -205,7 +213,6 @@ class YMSQL extends \DBymvas {
         }
 
         ///////
-
       }
 
       $substitut[$counter]['query'] .= $c;
