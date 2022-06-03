@@ -189,6 +189,7 @@ class YMSQL extends \DBymvas {
         $substitut[$counter]['query' ] .= $new_query;
         $substitut[$counter]['vcount'] += $meta['vcount'];
         $substitut[$counter]['scount'] += $meta['scount'];
+
         $substitut[$counter]['values'] = array_merge(
             $meta['values'], $substitut[$counter]['values']
         );
@@ -196,11 +197,14 @@ class YMSQL extends \DBymvas {
         $found = $had_else ? false:true;
         continue;
       } elseif ( $c == ':' ){
-        $arr = $this->keyInterpreter($i,$chars);
+        $arr = $this->keyInterpreter( $i , $chars );
 
-        $substitut[$counter]['scount'] += 1;
+        // var_dump($arr);
+        // echo "<hr>";
 
         if ($arr != null) {
+          $substitut[$counter]['scount'] += 1;
+
           $key = $arr['key'];
 
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
