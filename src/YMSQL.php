@@ -203,10 +203,10 @@ class YMSQL extends \DBymvas {
         // echo "<hr>";
 
         if ($arr != null) {
-          $substitut[$counter]['scount'] += 1;
 
           $key = $arr['key'];
 
+          $substitut[$counter]['scount'] += $arr['plc'] ? 0:1;
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
           $substitut[$counter]['values'][$arr['key']] = $arr;
         }
