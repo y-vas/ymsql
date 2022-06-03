@@ -4,16 +4,21 @@ services:
   apache_ymsql:
     build:
       context: './docker/apache/'
+
     links:
       - mysql_ymsql:mysqldb
+
     depends_on:
       - mysql_ymsql
+
     ports:
       - "0:80"
+
     volumes:
       - ./:/var/www/html/
       - ./docker/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf
       - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
+
     container_name: apache_ymsql
 
   mysql_ymsql:
@@ -23,8 +28,8 @@ services:
     ports:
       - "0:3306"
 
-    # volumes:
-    #   - ./docker/mysql-dump:/docker-entrypoint-initdb.d
+    volumes:
+      - ./docker/mysql-dump:/docker-entrypoint-initdb.d
 
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -34,3 +39,14 @@ services:
       MYSQL_ROOT_HOST: '%'
 
     container_name: mysql_ymsql
+
+  utils_ymvas:
+    build:
+      context    : ./
+      dockerfile : ./docker/utils/Dockerfile
+
+    volumes:
+      - ./:/var/www/
+
+    container_name:
+      utils_ymsql

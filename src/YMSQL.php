@@ -39,178 +39,189 @@ class YMSQL extends \DBymvas {
       return $mysqli;
   }
 
-//------------------------------------------------ <  interpreter > ----------------------------------------------------------
-// str = query string you pass to interpret the query
-// vrs = values to use
-// tring to make this with c++ to make the interpreter faster
-  protected function interpreter( $str, $vrs ) {
-    // check how the regex match works here
-    // https://regex101.com/r/b65mwz/1/
+  private function keyInterpreter($x,$chars){
+    $parser = '';
+    $key    = '';
+    $not_valid_parser_values = [
+      '\n','\t',' ','{','}',':','(',')','[',']'
+    ];
 
-    preg_match_all('~(?:([^\s,=%]*)([:])(\w+)[^\S\r\n]*(?(?=\?)\?([^;]*);|([!;]*))|([^\s{\)]*)(;)|(\\\\{0,1}{)|(\\\\{0,1}})|(default\s{0,1}:))~',
-                  $str, $m , PREG_OFFSET_CAPTURE );
-
-    $ofst = 0; // offset lenght
-
-    // $co contains the the brakets and substitution fields positions
-    // and show's if the brakts have been closed
-    $co = '';
-
-    $switches = [];
-    foreach ( $m[0] as $k => $full ) {
-      // full match
-      $full = $full[ 0 ];
-
-      // position
-      $p = $m[ 0 ][$k][1] ?? null;
-
-      // the key to replace
-      $n1 = isset($m[ 3 ][$k][0]) ? trim($m[ 3 ][$k][0]) : null;
-      $n2 = isset($m[ 6 ][$k][0]) ? trim($m[ 6 ][$k][0]) : null;
-      $var= strlen( $n1 ) == 0 ? $n2 : $n1;
-
-      // checks for '{' // s = start of block
-      $s = $m[ 8 ][$k][0] ?? null;
-      // checks for '}' f = final of block
-      $f = $m[ 9 ][$k][0] ?? null;
-
-      // checks if field is requiered
-      $a = $m[ 5 ][$k][0] ?? null;
-
-      $r  = isset($m[ 7 ][$k][0]) ? trim($m[ 7 ][$k][0]) : null;
-      $qs = isset($m[ 4 ][$k][0]) ? trim($m[ 4 ][$k][0]) : null;
-
-      // parser
-      $parser = $m[ 1 ][$k][0] ?? null;
-
-      // defaault value if is set
-      $default = $m[ 10][$k][0] ?? null;
-
-      if($s == '{' ){
-        $co .= $s;
-        $m[0][$k][2] = $p + $ofst;
+    for ($i=($x-1); $i >= 0; $i--){
+      $c = $chars[ $i ];
+      if (in_array($c,$not_valid_parser_values)){
+        break;
       }
-
-      if(!empty( $default )){
-        $co .= '~';
-      }
-
-      if($s == '\{' || $f == '\}'){
-        $str = substr_replace( $str , ' ' , $p + $ofst , 1 );
-        $co .= '_';
-      }
-
-      if( strlen( $var ) > 0 ){
-        $ad = ':';
-        $exist = array_key_exists( $var , $vrs );
-
-        if ( $exist && $r != ';' ){
-          // here we make the substitution
-
-          $nv = $this->parser( $parser , $vrs[ $var ] );
-
-          if ( $nv === null ){
-            $ad = "!";
-            if ( strlen( $qs ) > 0 ){ $nv = $qs; }
-          }
-
-          /* ---------------------------------------------------------------- */
-        } elseif( $exist && $r == ';' ){
-          $ad = '*';
-          $nv = '/**/';
-        } else if ( strlen( $qs ) > 0 ){
-          $nv = $qs;
-        } else {
-          $nv = '';
-          $ad = "!";
-        }
-
-        $co .= $ad;
-        $sub = $nv;
-        $str = substr_replace($str, $sub , $ofst + $p , strlen($full) );
-        $ofst += strlen( $sub ) - strlen( $full );
-      }
-
-      // echo $f;
-
-      if($f == '}'){
-        $co .= $f;
-        $cp = strrpos( $co, '{' );
-        $pr = substr(  $co, $cp, strlen( $co ) );
-
-        $pb = $m[ 0 ][ intval( $cp ) ][ 2 ];
-        // echo $pr;
-        // echo '<hr>';
-
-        $e = $p + $ofst - $pb + 1;
-
-
-        // if { default: } is set
-        if (strpos( $pr,'~') !== false) {
-          $grp = substr(  $str , $pb + 1 , $e - 2 );
-          $exp = explode('default:', $grp );
-
-          // if (($vrs['find'] ?? null) != null) {
-          //   dd(  $pr );
-          // }
-
-          if (strpos($pr, ':') !== false ||
-              strpos($pr, '*') !== false
-          ){
-            $nst = str_repeat(' ', strlen( $exp[1] ) + 10) . $exp[0];
-            $str = substr_replace(  $str, $nst, $pb , $e );
-          } else if (strpos($pr, ':') === false) {
-            // we add 10 ' ' because the lenght of $exp
-            $nst = str_repeat(' ',strlen($exp[0]) + 10) . $exp[1];
-            $str = substr_replace(  $str, $nst, $pb , $e );
-          }
-
-
-        }else if ( strpos( $pr,'*') ) {
-
-          // if has a key;
-          $str = substr_replace(  $str, ' ' , $pb ,        1 );
-          $str = substr_replace(  $str, ' ' , $p + $ofst , 1 );
-
-        }else if ( strpos( $pr,'!') !== false && strpos($pr, ':') !== false) {
-          // has negatives and positives trader_cdl3inside
-          // clear it
-          $str = substr_replace(  $str, str_repeat(' ', $e ), $pb , $e );
-        } else if (strpos($pr, ':') === false) {
-          // negative
-          $str = substr_replace(  $str, str_repeat(' ', $e ), $pb , $e );
-        } else {
-          // positive
-          $str = substr_replace(  $str, ' ' , $pb ,        1 );
-          $str = substr_replace(  $str, ' ' , $p + $ofst , 1 );
-        }
-
-        // echo "<hr>";
-        // echo $co;
-        // echo "<hr>";
-        // echo $co;
-        // die;
-
-        if ($pr == '!') {
-          $co = substr_replace($co, 'i' , $cp+1 , 1 );
-        }
-
-        $co = substr_replace($co, '(' , $cp , 1 );
-        $co = substr_replace($co, ')' , strlen( $co )-1 , 1 );
-      }
+      $parser .= $c;
     }
 
-    // echo $co;
-    // echo "<hr>";
-    // echo "end";
-    // echo "<hr>";
-    return $str;
+    for ($i=($x+1); $i < count($chars); $i++) {
+      $c = $chars[$i];
+      if (in_array($c,$not_valid_parser_values)) {
+        break;
+      }
+      $key .= $c;
+    }
+
+    $key    = trim($key);
+    $parser = trim($parser);
+
+    if ($key == '') {
+      return null;
+    }
+
+    $plc = false;
+    if ($parser == '' && $chars[$x-1] == ':') {
+      $parser = ':';
+      $plc    = true;
+    }
+
+    $result = [
+      'exi' => isset($this->vars[$key]),
+      'plc' => $plc   ,
+      'key' => $key    ,
+      'pas' => $parser ,
+      'raw' => $parser . ':' . $key ,
+    ];
+
+    // var_dump($result);
+    // die;
+    return $result;
   }
+
+  private function queryInterpreter($query,$vals){
+
+    foreach ($vals as $k => $v) {
+      // if values does not exists
+      // if value is placeholder
+      if (!$v['exi'] || $v['plc']){
+        $query = str_replace($v['raw'],'',$query);
+        continue;
+      }
+
+      if ($v['exi']){
+        $v['var'] = $this->vars[$v['key']];
+        $query = str_replace($v['raw'],$this->parser($v),$query);
+      }
+      // code...
+    }
+
+
+    return $query;
+    // var_dump([
+    //   $query,
+    //   $vals
+    // ]);
+    // die;
+  }
+
+  protected function interpreter($str,$vrs){
+    $chars = str_split( "   " . $str . "   " );
+
+    $skip      = 0;
+    $counter   = 0;
+    $found = false;
+    $positions = [];
+    $substitut = [[
+      'query'  => '' ,
+      'values' => [] ,
+      'vcount' => 0  ,
+    ]];
+
+    foreach( $chars as $i => $c ){
+      if ($skip != 0) { $skip--; continue; }
+
+      if ($chars[$i] == "\\" && ($chars[$i+1]=='{' || $chars[$i+1]=='}')) {
+        $substitut[$counter]['query'] .=  $chars[$i+1];
+        $skip = 1;
+        continue;
+      }
+
+      if ($c == ' ' || $c == '\n') {
+        $substitut[$counter]['query'] .=  $c;
+        continue;
+      }
+
+
+      ////
+      if ($c == '{'){
+        $counter += 1;
+        $positions[] = $i;
+        $substitut[] = [
+          'query' => '',
+          'vcount'=> 0 ,
+          'values'=> [],
+        ];
+
+        continue;
+      }
+
+
+      if ($c == '}'){
+        /////
+        $counter -= 1;
+        $meta       = array_pop($substitut);
+        $last_vals  = $meta['values'];
+        $last_query = $meta[ 'query'];
+        $new_query = '';
+
+        $x = array_pop($positions);
+
+        //// if elseif else
+        $has_elif = ($chars[$i+1] == "-" && $chars[$i+2] == ">");
+        $has_else = ($chars[$i+1] == "~" && $chars[$i+2] == ">");
+
+        $had_elif = ($chars[$x-2] == "-" && $chars[$x-1] == ">");
+        $had_else = ($chars[$x-2] == "~" && $chars[$x-1] == ">");
+
+        if ($has_elif || $has_else) { $skip += 2; }
+
+        if ( $meta['vcount'] == 0 && !$had_else ){
+          continue;
+        }
+
+        if ( $had_else && $found ){
+          $found = false;
+          continue;
+        }
+
+        $new_query = $this->queryInterpreter($last_query, $meta['values']);
+
+        $substitut[$counter]['query' ] .= $new_query;
+        $substitut[$counter]['vcount'] += $meta['vcount'];
+        $substitut[$counter]['values'] = array_merge(
+            $meta['values'], $substitut[$counter]['values']
+        );
+
+        $found = $had_else ? false:true;
+        continue;
+      } elseif ( $c == ':' ){
+        $arr = $this->keyInterpreter($i,$chars);
+
+        if ($arr != null) {
+          $key = $arr['key'];
+
+          $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
+          $substitut[$counter]['values'][$arr['key']] = $arr;
+        }
+
+        ///////
+
+      }
+
+      $substitut[$counter]['query'] .= $c;
+    }
+
+    return $substitut[$counter]['query'];
+  }
+
 
 //------------------------------------------------ <  parser > ----------------------------------------------------------
 // parser = parser value ex: d , email , +i
 // var = the variable to parse
-  public function parser( $parser , $var ){
+  public function parser( $content ){
+
+    $parser = $content['pas'];
+    $var    = $content['var'];
     // secure the value before inserting it in the query
     $res = $this->secure( $var );
 
@@ -314,19 +325,6 @@ class YMSQL extends \DBymvas {
       case 'json':
       case 'j':
           $res = "'" . json_encode($res, JSON_UNESCAPED_UNICODE ) . "'";
-          break;
-
-      // trim the value
-      case 't':
-          $res = "'" . trim(strval( $res )) . "'";
-          break;
-
-      // this 2 look souspiciously bad needs to be checked
-      case '"': // add for quoted values
-          $res =  '"' . trim(strval( $res ));
-          break;
-      case '\'': // add for quoted values
-          $res =  "'" . trim(strval( $res ));
           break;
 
       // parse the value to string
