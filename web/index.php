@@ -20,7 +20,7 @@ chdir('..');
 $query = file_get_contents(getcwd().'/tests/example.ym.sql');
 $new_q = $vsql->query($query,[
   // 'is_invited' => 9,
-   "memeber" => 1,
+   "lang" => 'es',
 ],true);
 
 ?>

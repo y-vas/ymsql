@@ -83,8 +83,6 @@ class YMSQL extends \DBymvas {
       'raw' => $parser . ':' . $key ,
     ];
 
-    // var_dump($result);
-    // die;
     return $result;
   }
 
@@ -102,16 +100,10 @@ class YMSQL extends \DBymvas {
         $v['var'] = $this->vars[$v['key']];
         $query = str_replace($v['raw'],$this->parser($v),$query);
       }
-      // code...
     }
 
 
     return $query;
-    // var_dump([
-    //   $query,
-    //   $vals
-    // ]);
-    // die;
   }
 
   protected function interpreter($str,$vrs){
@@ -182,6 +174,8 @@ class YMSQL extends \DBymvas {
         }
 
         if ( $meta['vcount'] != $meta['scount'] ){
+          // var_dump($meta);
+          // die;
           continue;
         }
 
@@ -194,6 +188,7 @@ class YMSQL extends \DBymvas {
 
         $substitut[$counter]['query' ] .= $new_query;
         $substitut[$counter]['vcount'] += $meta['vcount'];
+        $substitut[$counter]['scount'] += $meta['scount'];
         $substitut[$counter]['values'] = array_merge(
             $meta['values'], $substitut[$counter]['values']
         );
