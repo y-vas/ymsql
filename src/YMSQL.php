@@ -63,7 +63,7 @@ class YMSQL extends \DBymvas {
     }
 
     $key    = trim($key);
-    $parser = trim($parser);
+    $parser = strrev(trim($parser));
 
     if ($key == '') {
       return null;
@@ -115,6 +115,7 @@ class YMSQL extends \DBymvas {
     $positions = [];
     $substitut = [[
       'query'  => '' ,
+      'pcount'=> 0 ,
       'scount'=> 0 ,
       'values' => [] ,
       'vcount' => 0  ,
@@ -142,6 +143,7 @@ class YMSQL extends \DBymvas {
         $substitut[] = [
           'query' => '',
           'vcount'=> 0 ,
+          'pcount'=> 0 ,
           'scount'=> 0 ,
           'values'=> [],
         ];
@@ -173,7 +175,7 @@ class YMSQL extends \DBymvas {
           continue;
         }
 
-        if ( $meta['vcount'] != $meta['scount'] ){
+        if ( $meta['vcount'] != $meta['scount'] && $meta['scount'] != $meta['pcount']){
           // var_dump($meta);
           // die;
           continue;
@@ -189,7 +191,7 @@ class YMSQL extends \DBymvas {
         $substitut[$counter]['query' ] .= $new_query;
         $substitut[$counter]['vcount'] += $meta['vcount'];
         $substitut[$counter]['scount'] += $meta['scount'];
-
+        $substitut[$counter]['pcount'] += $meta['pcount'];
         $substitut[$counter]['values'] = array_merge(
             $meta['values'], $substitut[$counter]['values']
         );
@@ -197,17 +199,19 @@ class YMSQL extends \DBymvas {
         $found = $had_else ? false:true;
         continue;
       } elseif ( $c == ':' ){
-        $arr = $this->keyInterpreter( $i , $chars );
+        $arr = $this->keyInterpreter($i,$chars);
 
-        // var_dump($arr);
-        // echo "<hr>";
 
         if ($arr != null) {
-
           $key = $arr['key'];
+          //
+          // var_dump($arr);
+          // echo "<hr>";
 
-          $substitut[$counter]['scount'] += $arr['plc'] ? 0:1;
+
+          $substitut[$counter]['scount'] += 1;
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
+          $substitut[$counter]['pcount'] += $arr['plc'] ? 1:0;
           $substitut[$counter]['values'][$arr['key']] = $arr;
         }
 
@@ -310,8 +314,6 @@ class YMSQL extends \DBymvas {
           break;
 
       // implode the array
-      case 'implode':
-      case 'array':
       case 'a':
           if (!is_array( $res )) {
             $res = [];
