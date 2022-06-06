@@ -63,7 +63,7 @@ class YMSQL extends \DBymvas {
     }
 
     $key    = trim($key);
-    $parser = strrev(trim($parser));
+    $parser = trim($parser);
 
     if ($key == '') {
       return null;
