@@ -176,8 +176,6 @@ class YMSQL extends \DBymvas {
         }
 
         if ( $meta['vcount'] != $meta['scount'] && $meta['scount'] != $meta['pcount']){
-          // var_dump($meta);
-          // die;
           continue;
         }
 
@@ -204,10 +202,6 @@ class YMSQL extends \DBymvas {
 
         if ($arr != null) {
           $key = $arr['key'];
-          //
-          // var_dump($arr);
-          // echo "<hr>";
-
 
           $substitut[$counter]['scount'] += 1;
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
@@ -221,7 +215,9 @@ class YMSQL extends \DBymvas {
       $substitut[$counter]['query'] .= $c;
     }
 
-    return $substitut[$counter]['query'];
+    return $this->queryInterpreter(
+      $substitut[$counter]['query'] , $substitut[$counter]['values']
+    );
   }
 
 
