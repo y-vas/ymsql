@@ -48,7 +48,7 @@ class YMSQL extends \DBymvas {
 
     for ($i=($x-1); $i >= 0; $i--){
       $c = $chars[ $i ];
-      if (in_array($c,$not_valid_parser_values)){
+      if (trim($c) == '' || in_array($c,$not_valid_parser_values)){
         break;
       }
       $parser .= $c;
@@ -56,11 +56,13 @@ class YMSQL extends \DBymvas {
 
     for ($i=($x+1); $i < count($chars); $i++) {
       $c = $chars[$i];
-      if (in_array($c,$not_valid_parser_values)) {
+      if (trim($c) == '' || in_array($c,$not_valid_parser_values)) {
         break;
       }
       $key .= $c;
     }
+
+    // var_dump($key);
 
     $key    = trim($key);
     $parser = trim($parser);
@@ -74,6 +76,8 @@ class YMSQL extends \DBymvas {
       $parser = ':';
       $plc    = true;
     }
+
+
 
     $result = [
       'exi' => isset($this->vars[$key]),
@@ -176,6 +180,8 @@ class YMSQL extends \DBymvas {
         }
 
         if ( $meta['vcount'] != $meta['scount'] && $meta['scount'] != $meta['pcount']){
+          // var_dump($meta);
+          // die;
           continue;
         }
 
@@ -202,6 +208,9 @@ class YMSQL extends \DBymvas {
 
         if ($arr != null) {
           $key = $arr['key'];
+
+          // var_dump($arr);
+          // echo "<hr>";
 
           $substitut[$counter]['scount'] += 1;
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
