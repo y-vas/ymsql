@@ -1,10 +1,10 @@
-# VSQL
+# YMSQL
 
 // site
 https://ymvas.com/ymsql
 
 
-VSQL is a query helper and abstraction layer for php.
+YMSQL is a query helper and abstraction layer for php.
 
 ### COMPOSER INSTALATION
 ```sh
@@ -27,7 +27,7 @@ $query = $v->query(
    " SELECT * FROM Table T
      WHERE TRUE
     { AND T.name = :name } "
-  ,[ 'name' => 'vsql' ]
+  ,[ 'name' => 'ymsql' ]
   , true  
 );
 
@@ -37,7 +37,7 @@ $query = $v->query(
   "
   SELECT * FROM Table T
   WHERE TRUE
-  AND T.name = 'vsql'
+  AND T.name = 'ymsql'
   "
 */
 
@@ -54,7 +54,7 @@ $res = $v->get( $list = true );
 Given this values and this query
 ````php
 $values = [
-  'name'     => 'vsql',
+  'name'     => 'ymsql',
   'getbasic' => true,
   'pass'     => 'secret'
 ]
@@ -78,7 +78,7 @@ AND d.surname like '%{:surname}%'
 Output Query
 ````sql
 SELECT
-  vsql
+  ymsql
   , d.name ,d.surname, d.pass
   , d.id
 FROM dbtable d

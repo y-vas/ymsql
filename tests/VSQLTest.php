@@ -32,9 +32,9 @@ final class YMSQL_TEST extends TestCase {
     public function test1(): void {
       $retun_query = $this->vsql->query( $this->query, [] );
 
-      $fp = fopen(getcwd().'/tests/test1.ym.sql', "w+");
-      fwrite($fp, $retun_query );
-      fclose($fp);
+      // $fp = fopen(getcwd().'/tests/test1.ym.sql', "w+");
+      // fwrite($fp, $retun_query );
+      // fclose($fp);
 
       $test_query = file_get_contents(getcwd().'/tests/test1.ym.sql');
 
@@ -49,9 +49,9 @@ final class YMSQL_TEST extends TestCase {
         'memeber' => 3
       ]);
 
-      $fp = fopen(getcwd().'/tests/test2.ym.sql', "w+");
-      fwrite($fp, $retun_query );
-      fclose($fp);
+      // $fp = fopen(getcwd().'/tests/test2.ym.sql', "w+");
+      // fwrite($fp, $retun_query );
+      // fclose($fp);
 
       $test_query = file_get_contents(getcwd().'/tests/test2.ym.sql');
 
@@ -68,9 +68,9 @@ final class YMSQL_TEST extends TestCase {
         'mixed_status' => 3
       ]);
 
-      $fp = fopen(getcwd().'/tests/test3.ym.sql', "w+");
-      fwrite($fp, $retun_query );
-      fclose($fp);
+      // $fp = fopen(getcwd().'/tests/test3.ym.sql', "w+");
+      // fwrite($fp, $retun_query );
+      // fclose($fp);
 
       $test_query = file_get_contents(getcwd().'/tests/test3.ym.sql');
 
@@ -87,9 +87,9 @@ final class YMSQL_TEST extends TestCase {
         ],
       ]);
 
-      $fp = fopen(getcwd().'/tests/test4.ym.sql', "w+");
-      fwrite($fp, $retun_query );
-      fclose($fp);
+      // $fp = fopen(getcwd().'/tests/test4.ym.sql', "w+");
+      // fwrite($fp, $retun_query );
+      // fclose($fp);
 
       $test_query = file_get_contents(getcwd().'/tests/test4.ym.sql');
 
