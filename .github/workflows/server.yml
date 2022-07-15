@@ -25,4 +25,5 @@ jobs:
       run: sudo docker-compose up -d apache_ymsql
 
     - name: run tests
-      run: sudo docker exec utils_ymsql /bin/sh -c 'cd var/www/ && ./vendor/bin/phpunit ./tests/VSQLTest.php'
+      run: sudo docker exec utils_ymsql /bin/sh -c 'cd var/www/ && ls -la'
+      # run: sudo docker exec utils_ymsql /bin/sh -c 'cd var/www/ && ./vendor/bin/phpunit ./tests/VSQLTest.php'
