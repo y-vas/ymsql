@@ -7,7 +7,8 @@ class YMSQL extends \DBymvas {
 
   public $map = null;
 
-  public function __construct( $id = null ){
+  public function __construct(){
+    parent::__construct();
     $this->connect();
   }
 
@@ -30,13 +31,9 @@ class YMSQL extends \DBymvas {
   }
 
   public function run(){
-
-      $mysqli = $this->connect;
-      $mysqli->query(
-          $this->vquery
-      );
-
-      return $mysqli;
+    $mysqli = $this->connect;
+    $mysqli->query( $this->vquery );
+    return $mysqli;
   }
 
   private function keyInterpreter($x,$chars){
@@ -394,31 +391,38 @@ class YMSQL extends \DBymvas {
       $obj    = new \stdClass();
       $count  = 0;
 
+
+      /// currenty no cleaner way to make it
       if (mysqli_multi_query( $mysqli, $this->vquery )) {
           if ($list === true) {
 
               //----------------------------------------------------------------
               do { if($result = mysqli_store_result($mysqli) ) {
-                  while ($proceso = mysqli_fetch_assoc($result)) {
-                      $obj->$count = $this->fetch($result, $proceso,$callback);
-                      $count++;
-                  }
-                  mysqli_free_result($result);
+
+                while ($proceso = mysqli_fetch_assoc($result)) {
+                    $obj->$count = $this->fetch($result, $proceso,$callback);
+                    $count++;
                 }
+
+                mysqli_free_result($result);
+              }
+
               if (!mysqli_more_results($mysqli)) { break; }
-              } while (mysqli_next_result($mysqli) && mysqli_more_results() );
+              } while ( mysqli_next_result($mysqli) && mysqli_more_results() );
 
           } else {
               $result = mysqli_store_result($mysqli);
+
               if ( !$result ) {
                 $this->error( "Fail on query get :".mysqli_error($mysqli) );
               }
 
               $proceso = mysqli_fetch_assoc( $result );
+
               if( $proceso == null ){
                 $obj = null;
               } else {
-                $obj = $this->fetch( $result, $proceso ,$callback);
+                $obj = $this->fetch( $result, $proceso ,$callback );
               }
           };
 
@@ -431,7 +435,7 @@ class YMSQL extends \DBymvas {
 
 
 // ------------------------------------------------ <  fetch > ----------------------------------------------------
-  public function fetch( $result, $proceso , $callback = null ) {
+  protected function fetch( $result, $proceso , $callback = null ) {
       $row = new \stdClass();
 
       $count = 0;
@@ -444,14 +448,14 @@ class YMSQL extends \DBymvas {
 
 
       if ( $callback != null ) {
-        $row = $callback($row);
+        $row = $callback( $row , $this->vars );
       }
 
       return $row;
   }
 
 // ------------------------------------------------ <  _transform_get > ------------------------------------------------
-  public function _transform_get( $val, $datatype, $key ){
+  protected function _transform_get( $val, $datatype, $key ){
 
       foreach ($this->fetched as $k => $value) {
           if (trim( $key ) == trim( $k )){

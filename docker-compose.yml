@@ -7,10 +7,8 @@ services:
 
     links:
       - mysql_ymsql:mysqldb
-
     depends_on:
       - mysql_ymsql
-
     ports:
       - "0:80"
 
@@ -41,9 +39,18 @@ services:
     container_name: mysql_ymsql
 
   utils_ymvas:
+    tty: true
+    stdin_open: true
     build:
       context    : ./
       dockerfile : ./docker/utils/Dockerfile
+
+    command: tail -f /dev/null
+
+    links:
+      - mysql_ymsql:mysqldb
+    depends_on:
+      - mysql_ymsql
 
     volumes:
       - ./:/var/www/

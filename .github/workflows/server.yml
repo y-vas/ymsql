@@ -5,13 +5,13 @@ on:
     branches: [ main ]
     paths-ignore:
     - 'docker'
-    - 'demo'
     - '.github'
 
 jobs:
   Tests:
     runs-on:
       ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
 
@@ -22,4 +22,4 @@ jobs:
       run: sudo docker-compose up -d apache_ymsql
 
     - name: run tests
-      run: sudo docker exec apache_ymsql /bin/bash -c 'cd .. && ./vendor/bin/phpunit app/Test/'
+      run: sudo docker exec utils_ymsql /bin/sh -c 'cd var/www/ && ./vendor/bin/phpunit ./tests/VSQLTest.php'

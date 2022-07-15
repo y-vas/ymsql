@@ -22,7 +22,7 @@ $_ENV['DB_USERNAME'] = 'name';
 $_ENV['DB_PASSWORD'] = 'pass';
 $_ENV['DB_DATABASE'] = 'dtbs';
 
-$v = new VSQL( );
+$v = new YMSQL( );
 $query = $v->query(
    " SELECT * FROM Table T
      WHERE TRUE

@@ -5,45 +5,22 @@ use YMSQL\YMSQL;
 
 // // DISABLE INSPET TO prevent from swhowing the inspect mode
 $_ENV['VSQL_INSPECT'] = false;
-$_ENV[  'DB_HOST'  ] = '172.29.0.2';
+$_ENV[  'DB_HOST'  ] = 'mysql_ymsql';
 $_ENV['DB_USERNAME'] = 'root';
 $_ENV['DB_PASSWORD'] = 'root';
 $_ENV['DB_DATABASE'] = 'dbtest';
 
 final class YMSQL_TEST extends TestCase {
-    public $vsql = null;
-
-    public $select_test_query = "SELECT *
-    FROM Products p {
-      INNER JOIN Users u on p.user_id = u.id
-      JOIN_USERS;
-    }
-    WHERE TRUE
-    { AND p.name like '%:like%' }
-    { LIMIT +i:limit }
-    ";
-
-    public $insert_test_query = "INSERT
-        INTO Products ( id, name, type, num, user_id, cost )
-        VALUES      (
-          null,
-          s:name,
-          r:type,
-          r:num ? 0; ,
-          r:user_id,
-          r:cost
-      )
-    ";
-
-    public $update_test_query = "
-
-    ";
+    public $query = null;
 
     protected function setUp(){
+      $this->query = file_get_contents(getcwd().'/tests/example.ym.sql');
+
+
       try {
         $this->vsql = new YMSQL();
       } catch (\Exception $e) {
-        $this->fail('Could not connect mysqli with VSQL!');
+        $this->fail('Could not connect mysqli!');
       }
 
       $this->assertNotNull(
@@ -52,70 +29,75 @@ final class YMSQL_TEST extends TestCase {
       );
     }
 
-    public function testSimpleSELECT(): void {
-        $query = "SELECT * FROM Products LIMIT 2";
-        $retun_query = $this->vsql->query( $query, [] );
+    public function test1(): void {
+      $retun_query = $this->vsql->query( $this->query, [] );
 
-        $this->assertEquals(
-            $retun_query,
-            $query
-        );
+      $fp = fopen(getcwd().'/tests/test1.ym.sql', "w+");
+      fwrite($fp, $retun_query );
+      fclose($fp);
 
-        $this->assertInstanceOf(
-            'stdClass',
-            $this->vsql->run(),
-        );
+      $test_query = file_get_contents(getcwd().'/tests/test1.ym.sql');
+
+      $this->assertEquals(
+          trim($retun_query),
+          trim($test_query)
+      );
     }
 
-    public function testInsert(): void {
-        $retun_query = $this->vsql->query(
-            $this->insert_test_query, [
-            'name' =>'test',
-            'type' => '5',
-            'num'  => 'this_should_transfom_into_0',
-            'user_id' => '1',
-            'cost' => '-32'
-        ]);
+    public function test2(): void {
+      $retun_query = $this->vsql->query( $this->query, [
+        'memeber' => 3
+      ]);
 
-        $insert_id = $this->vsql->run()->insert_id;
+      $fp = fopen(getcwd().'/tests/test2.ym.sql', "w+");
+      fwrite($fp, $retun_query );
+      fclose($fp);
 
-        $this->assertIsInt( $insert_id );
+      $test_query = file_get_contents(getcwd().'/tests/test2.ym.sql');
 
-        // now we chech if the values are correctly inserted
-        // we select the last inserted row
-        $this->vsql->query( "SELECT
-            * FROM Products
-            WHERE name = 'test' order by id desc
-            LIMIT 1
-        ",[] );
-
-        $data = $this->vsql->get();
-
-        $this->assertEquals( $data->name, 'test' );
-        $this->assertEquals( $data->type, 5 );
-        $this->assertEquals( $data->num , 0 );
-        $this->assertEquals( $data->user_id, 1 );
-        $this->assertEquals( $data->cost, 32 );
+      $this->assertEquals(
+          trim($retun_query),
+          trim($test_query)
+      );
     }
 
-    public function testComplexSelect(): void {
-        $retun_query = $this->vsql->query(
-            $this->select_test_query, [
-            'limit' => 2,
-        ]);
+    public function testMultilevel(): void {
+      $retun_query = $this->vsql->query( $this->query, [
+        'memeber' => 3,
+        '__append' => 'xname',
+        'mixed_status' => 3
+      ]);
 
-        $data = ( array ) $this->vsql->get( true );
+      $fp = fopen(getcwd().'/tests/test3.ym.sql', "w+");
+      fwrite($fp, $retun_query );
+      fclose($fp);
 
-        $this->assertEquals( count($data), 2 );
-        $this->assertEquals( count((array)$data[0]), 6 );
+      $test_query = file_get_contents(getcwd().'/tests/test3.ym.sql');
 
-        $retun_query = $this->vsql->query(
-            $this->select_test_query, [
-            'JOIN_USERS' => 2,
-        ]);
-
-        $data = (array) $this->vsql->get( true );
-        $this->assertEquals( count((array)$data[0]), 9 );
+      $this->assertEquals(
+          trim($retun_query),
+          trim($test_query)
+      );
     }
+
+    public function test4(): void {
+      $retun_query = $this->vsql->query( $this->query, [
+        'meta' => [
+          'test' => 'dasdfa'
+        ],
+      ]);
+
+      $fp = fopen(getcwd().'/tests/test4.ym.sql', "w+");
+      fwrite($fp, $retun_query );
+      fclose($fp);
+
+      $test_query = file_get_contents(getcwd().'/tests/test4.ym.sql');
+
+      $this->assertEquals(
+          trim($retun_query),
+          trim($test_query)
+      );
+    }
+
 
 }
