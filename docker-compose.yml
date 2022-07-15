@@ -38,7 +38,7 @@ services:
 
     container_name: mysql_ymsql
 
-  utils_ymvas:
+  utils_ymsql:
     tty: true
     stdin_open: true
     build:
