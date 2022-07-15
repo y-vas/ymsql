@@ -97,8 +97,8 @@ AND d.pass = 'secret'
 |      +f        | -3, -1.3  ,0 ,'123.3' , null  |   3, 1.3 ,0 ,123.3, 0         |
 |       s        |    'string',0 ,'123.3', null  |    'string','0','123.3',''    |
 |       t        | '  string  ',0 ,'123.3', null |    'string','0','123.3',''    |
-| array/implode  |  ['string',0 ,'123.3', null]  |    'string,0,123.3,'          |
-|      json      |  ['string',0 ,'123.3', null]  |'[\"string\",0,\"123.3\",null]'|
+|       a        |  ['string',0 ,'123.3', null]  |    'string,0,123.3,'          |
+|        j       |  ['string',0 ,'123.3', null]  |'[\"string\",0,\"123.3\",null]'|
 
 
 ### Classes
