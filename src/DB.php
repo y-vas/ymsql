@@ -96,14 +96,12 @@ class DBymvas {
       if ($methods) { header('Access-Control-Allow-Methods : *'); }
       if ($heads) { header('Access-Control-Allow-Headers : *'); }
 
-      echo json_encode([
+      die(json_encode([
         "msg"    => $msg,
         'type'   => 'danger',
         "query"  => $this->query  ,
         "yquery" => $this->vquery ,
-      ]);
-
-      die;
+      ]));
     }
 
     if ( $_ENV['APP_DEBUG'] || $debug ) {
