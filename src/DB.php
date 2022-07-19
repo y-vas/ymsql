@@ -27,9 +27,11 @@ class DBymvas {
           if ( function_exists('mysqli_connect_error') ){
             $this->error = mysqli_connect_error();
           }
+
           if (function_exists('mysqli_connect_errno')) {
             $this->errorno = mysqli_connect_errno();
           }
+          
           $this->error("Function mysqli_connect() does not exists. mysqli extension is not enabled?");
       }
   }

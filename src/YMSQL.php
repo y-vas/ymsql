@@ -59,8 +59,6 @@ class YMSQL extends \DBymvas {
       $key .= $c;
     }
 
-    // var_dump($key);
-
     $key    = trim($key);
     $parser = trim($parser);
 
@@ -177,8 +175,6 @@ class YMSQL extends \DBymvas {
         }
 
         if ( $meta['vcount'] != $meta['scount'] && $meta['scount'] != $meta['pcount']){
-          // var_dump($meta);
-          // die;
           continue;
         }
 
@@ -205,10 +201,6 @@ class YMSQL extends \DBymvas {
 
         if ($arr != null) {
           $key = $arr['key'];
-
-          // var_dump($arr);
-          // echo "<hr>";
-
           $substitut[$counter]['scount'] += 1;
           $substitut[$counter]['vcount'] += $arr['exi'] ? 1:0;
           $substitut[$counter]['pcount'] += $arr['plc'] ? 1:0;
@@ -231,55 +223,26 @@ class YMSQL extends \DBymvas {
 // parser = parser value ex: d , email , +i
 // var = the variable to parse
   public function parser( $content ){
-
     $parser = $content['pas'];
     $var    = $content['var'];
+
     // secure the value before inserting it in the query
     $res = $this->secure( $var );
 
     //---------------------- cases ----------------------
     switch ( $parser ) {
-      // d = date
-      case 'd':
-          settype($var, 'string');
-          $res = empty( $var ) ? "'1970-01-01'":"'{$var}'";
-          if (!(\DateTime::createFromFormat('Y-m-d', $var) !== false)) {
-              $res = null;
-          }
-          break;
-
-      case 'dt':
-          settype($var, 'string');
-          $res = empty($var) ? "'1970-01-01 00:00:00'": "'{$var}'";
-          if (!(\DateTime::createFromFormat('Y-m-d H:i:s', $var) !== false)) {
-              $res = null;
-          }
-          break;
-
-      case 'e':
-      case 'email':
-          if (!filter_var($res, FILTER_VALIDATE_EMAIL)) {
+      case 'i': // i = integer
+          if ($var === null){
+            $res = null;
+          } elseif ( !is_numeric($var) ){
             $res = null;
           } else {
-            $res = "'".$res."'";
-          }
-
-          break;
-
-      // i = integer
-      case 'i':
-          if ($var === null){
-            $res = null;
-          } elseif (!is_numeric($var)) {
-            $res = null;
-          }else{
-            settype($var, 'int');
+            settype( $var, 'int' );
             $res = $var;
           }
           break;
 
-      // parse to positive integer
-      case 'r':
+      case 'r': // parse to positive integer
           if ($var === null){
             $res = null;
           } elseif (!is_numeric($var)) {
@@ -290,71 +253,83 @@ class YMSQL extends \DBymvas {
           }
           break;
 
-      // parse to float
-      case 'f':
-          if ($var === null){
-            $res = null;
-          } elseif (!is_numeric($var)) {
-            $res = null;
-          }else{
-            settype($var, 'float');
-            $res = $var;
-          }
 
-          break;
-
-      // parse to positive float
-      case '+f':
-          if ($var === null){
-            $res = null;
-          } elseif (!is_numeric($var)) {
-            $res = null;
-          }else{
-            settype($var, 'float');
-            $res = abs($var);
-          }
-          break;
-
-      // implode the array
-      case 'a':
-          if (!is_array( $res )) {
-            $res = [];
-          }
-          $res = "'" . implode(',' ,  $res ) . "'";
-          break;
-
-      case 'c':
-          if (!is_array( $res )) {
-            $res = null;
-            break;
-          }
-          $res = implode(',' ,  $res );
-          break;
-
-      // transform the valie to json
-      case 'json':
-      case 'j':
-          $res = "'" . json_encode($res, JSON_UNESCAPED_UNICODE ) . "'";
-          break;
-
-      // parse the value to string
-      case 's':
+      case 's': // parse the value to string
           $v = strval($res);
           $res = (strlen($v) > 0) ? "'". $v . "'": null;
           break;
-
       case 'q':
           $v = strval($res);
           $res = (strlen($v) > 0) ? '"'. $v . '"': null;
           break;
 
-      case 'w':
-          json_decode( $var );
-          $res = (json_last_error() == JSON_ERROR_NONE) ? "'". $var."'" : '{}';
+
+      case 'f': // parse to float
+          if ($var === null){
+            $res = null;
+          } elseif (!is_numeric($var)) {
+            $res = null;
+          }else{
+            settype($var, 'float');
+            $res = $var;
+          }
+          break;
+      case '+f': // parse to positive float
+          if ($var === null){
+            $res = null;
+          } elseif (!is_numeric($var)) {
+            $res = null;
+          }else{
+            settype($var, 'float');
+            $res = abs($var);
+          }
           break;
 
-      case 'x':
-          $res = ($var == 'on') ? 1 : 0;
+
+      case 'a': // implode the array
+          if (!is_array( $res )){  $res = []; }
+          $res = "'".implode( ',', $res )."'";
+          break;
+      case 'c':
+          if (!is_array( $res )){
+            $res = null; break;
+          }
+          $res = implode(',' ,  $res );
+          break;
+
+
+      // transform the valie to json
+      case 'j':
+          $res = "'".json_encode( $res , JSON_UNESCAPED_UNICODE )."'";
+          break;
+      case 'w':
+          json_decode( $var );
+          $res = (json_last_error() == JSON_ERROR_NONE) ? "'". $var."'" : "'{}'";
+          break;
+
+
+      case 'd':  // d = date
+          settype( $var , 'string' );
+          $res = empty( $var ) ? "'1970-01-01'":"'{$var}'";
+          if (!(\DateTime::createFromFormat('Y-m-d', $var) !== false)) {
+              $res = null;
+          }
+          break;
+      case 'dt': // dt = datetime
+          settype($var, 'string');
+          $res = empty($var) ? "'1970-01-01 00:00:00'": "'{$var}'";
+          if(!( \DateTime::createFromFormat('Y-m-d H:i:s', $var ) !== false ) ){
+              $res = null;
+          }
+          break;
+
+
+      case 'e':
+          if (!filter_var($res, FILTER_VALIDATE_EMAIL)) {
+            $res = null;
+          } else {
+            $res = "'".$res."'";
+          }
           break;
 
       default:
