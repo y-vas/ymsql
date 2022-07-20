@@ -21,8 +21,8 @@ jobs:
     - name: init utils_ymsql
       run: sudo docker-compose up -d utils_ymsql
 
-    - name: init apache_ymsql
-      run: sudo docker-compose up -d apache_ymsql
+    # - name: init apache_ymsql
+    #   run: sudo docker-compose up -d apache_ymsql
 
     - name: composer update
       run: sudo docker exec utils_ymsql /bin/sh -c 'cd var/www/ && composer update --ignore-platform-reqs'
